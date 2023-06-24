@@ -3,6 +3,7 @@ package com.example.restfulwebservices.user;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -17,13 +18,16 @@ public class UserResource {
         this.service = service;
     }
 
+
     @GetMapping("/users")
+    @CrossOrigin
     public List<User> retrieveAllUsers(){
         return service.finAll();
     }
     @GetMapping("/users/{id}")
-    public User retrieveOne(@PathVariable int id){
+    public User retrieveOne(@PathVariable int id, CorsRegistry registry){
         User user = service.findOne(id);
+        registry.addMapping("/greeting-javaconfig").allowedOrigins("http://localhost:8080");
         if(user == null){
             throw new UserNotFoundException("This Id: " + id + " not found");
         }
