@@ -1,6 +1,8 @@
 package com.example.restfulwebservices.user;
-
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 import jakarta.validation.Valid;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -25,13 +27,17 @@ public class UserResource {
         return service.finAll();
     }
     @GetMapping("/users/{id}")
-    public User retrieveOne(@PathVariable int id, CorsRegistry registry){
+    public EntityModel<User> retrieveOne(@PathVariable int id, CorsRegistry registry){
         User user = service.findOne(id);
         registry.addMapping("/greeting-javaconfig").allowedOrigins("http://localhost:8080");
         if(user == null){
             throw new UserNotFoundException("This Id: " + id + " not found");
         }
-        return user;
+        EntityModel<User> entityModel = EntityModel.of(user);
+        WebMvcLinkBuilder link = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+        entityModel.add(link.withRel("all-users"));
+
+        return entityModel;
     }
 
     @DeleteMapping("/users/{id}")
